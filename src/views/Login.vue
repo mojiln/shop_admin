@@ -2,7 +2,7 @@
   <el-row type="flex" class="row-bg" justify="center" align="middle">
     <el-col :xs="14" :sm="12" :md="10" :lg="8" :xl="6">
       <el-form
-        ref="form"
+        ref="loginForm"
         :model="form"
         :rules="formRules"
         class="login-form"
@@ -17,20 +17,23 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">登录</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" @click="submitForm('loginForm')">登录</el-button>
+          <el-button @click="resetForm('loginForm')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-col>
   </el-row>
 </template>
+
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       form: {
-        username: "",
-        password: ""
+        username: "admin",
+        password: "123456"
       },
       formRules: {
         username: [
@@ -53,7 +56,7 @@ export default {
             trigger: "blur"
           },
           {
-            min: 5,
+            min: 6,
             max: 12,
             message: "密码必须是6个到15个字符",
             trigger: "change"
@@ -63,8 +66,27 @@ export default {
     };
   },
   methods: {
-    onSubmit() {
-      console.log("submit!");
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          axios({
+            url: "http://localhost:8888/api/private/v1/login",
+            method: "post",
+            data: this.form
+          }).then(({ data: { data, meta } }) => {
+            // console.log(res);
+            if (meta.status === 200) {
+              this.$router.push("/home");
+            }
+          });
+        } else {
+          // console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
     }
   }
 };
