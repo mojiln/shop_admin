@@ -32,8 +32,8 @@ export default {
   data() {
     return {
       form: {
-        username: "admin",
-        password: "123456"
+        username: "",
+        password: ""
       },
       formRules: {
         username: [
@@ -76,11 +76,19 @@ export default {
           }).then(({ data: { data, meta } }) => {
             // console.log(res);
             if (meta.status === 200) {
+              // 登录成功之后，服务器端会返回给我们一个token
+              // 我们需要将这个token保存到本地
+              // 保存到localstorage中就可以
+              localStorage.setItem("token", data.token);
               this.$router.push("/home");
+            } else {
+              alert("用户密码输入错误");
+              return false;
             }
           });
         } else {
           // console.log('error submit!!');
+          alert("用户密码输入错误");
           return false;
         }
       });
