@@ -102,23 +102,22 @@
 export default {
   methods: {
     // 退出功能
-    logout() {
-      this.$confirm("您是否确定退出?", "温馨提示", {
+    async logout() {
+      let confim = await this.$confirm("您是否确定退出?", "温馨提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      })
-        .then(() => {
-          // 退出登录逻辑：
-          this.$router.push("/login");
-          localStorage.removeItem("token");
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消退出"
-          });
+      });
+      // 退出登录逻辑：
+      if (confim) {
+        this.$router.push("/login");
+        localStorage.removeItem("token");
+      } else {
+        this.$message({
+          type: "info",
+          message: "已取消退出"
         });
+      }
     }
   }
 };

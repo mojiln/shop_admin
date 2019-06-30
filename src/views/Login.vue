@@ -13,7 +13,7 @@
           <el-input v-model="form.username"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password"></el-input>
+          <el-input v-model="form.password" type="password"></el-input>
         </el-form-item>
 
         <el-form-item>
@@ -69,36 +69,36 @@ export default {
     async submitForm(formName) {
       let valid = await this.$refs[formName].validate();
       if (valid) {
-        let res = await axios({
-          url: "http://localhost:8888/api/private/v1/login",
-          method: "post",
-          data: this.form
-        });
-        // .then(({ data: { data, meta } }) => {
-        //   // console.log(res);
-        //   if (meta.status === 200) {
-        //     // 登录成功之后，服务器端会返回给我们一个token
-        //     // 我们需要将这个token保存到本地
-        //     // 保存到localstorage中就可以
-        //     localStorage.setItem("token", data.token);
-        //     this.$router.push("/home");
-
-        if (res.data.meta.status === 200) {
-          localStorage.setItem("token", res.data.data.token);
-          this.$router.push("/home");
-        } else {
-          // alert("用户密码输入错误");
-          // return false;
-          this.$message({
-            message: res.data.meta.msg,
-            type: "error",
-            duration: 1000
+        try {
+          let res = await axios({
+            url: "http://localhost:8888/api/private/v1/login",
+            method: "post",
+            data: this.form
           });
+          // .then(({ data: { data, meta } }) => {
+          //   // console.log(res);
+          //   if (meta.status === 200) {
+          //     // 登录成功之后，服务器端会返回给我们一个token
+          //     // 我们需要将这个token保存到本地
+          //     // 保存到localstorage中就可以
+          //     localStorage.setItem("token", data.token);
+          //     this.$router.push("/home");
+
+          if (res.data.meta.status === 200) {
+            localStorage.setItem("token", res.data.data.token);
+            this.$router.push("/home");
+          } else {
+            // alert("用户密码输入错误");
+            // return false;
+            this.$message({
+              message: res.data.meta.msg,
+              type: "error",
+              duration: 1000
+            });
+          }
+        } catch (e) {
+          console.log(e);
         }
-      } else {
-        // console.log('error submit!!');
-        alert("用户密码输入错误");
-        return false;
       }
     },
     resetForm(formName) {
