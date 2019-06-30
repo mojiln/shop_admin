@@ -3,6 +3,7 @@
     <el-table-column prop="username" label="姓名" width="180"></el-table-column>
     <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
     <el-table-column prop="mobile" label="电话"></el-table-column>
+    <!-- 作用域插槽 通过 Scoped slot 可以获取到 row, column, $index 和 store（table 内部的状态管理）的数据-->
     <el-table-column label="用户状态" v-slot="{row}">
       <el-switch v-model="row.type" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
     </el-table-column>
