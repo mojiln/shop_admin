@@ -3,6 +3,8 @@ import Router from 'vue-router'
 import Login from './views/Login.vue'
 import Home from './views/Home.vue'
 import User from './views/User.vue'
+import Roles from './views/Roles.vue'
+import Right from './views/Right.vue'
 
 Vue.use(Router)
 
@@ -18,6 +20,12 @@ const router = new Router({
       children: [{
         path: "/user",
         component: User
+      }, {
+        path: "/roles",
+        component: Roles
+      }, {
+        path: "/right",
+        component: Right
       }]
     },
     {
