@@ -8,45 +8,154 @@
     </el-breadcrumb>
     <!-- 表格 -->
     <el-table :data="roleList" stripe style="width: 100%">
+      <!-- type="expand" 给列加上这个属性之后，可以实现 展开行的效果 -->
       <el-table-column type="expand">
-        <!-- <template slot-scope="props">
-          
-        </template>-->
-        hahahah
+        <template v-slot="{row}">
+          <!-- el-row level1  这是一级菜单的行元素 -->
+          <el-row class="level1" type="flex" v-for="level1 in row.children" :key="level1.id">
+            <el-col :span="6">
+              <el-tag closable>{{level1.authName}}</el-tag>
+              <i class="el-icon-arrow-right"></i>
+            </el-col>
+            <el-col>
+              <!-- el-row level2  这是二级菜单的行元素 -->
+              <el-row class="level2" type="flex" v-for="level2 in level1.children" :key="level2.id">
+                <el-col :span="6">
+                  <el-tag closable type="success">{{level2.authName}}</el-tag>
+                  <i class="el-icon-arrow-right"></i>
+                </el-col>
+                <!-- el-row level3  这是三级菜单的行元素 -->
+                <el-col>
+                  <el-tag
+                    closable
+                    type="warning"
+                    class="level3"
+                    v-for="level3 in level2.children"
+                    :key="level3.id"
+                  >{{level3.authName}}</el-tag>
+                </el-col>
+              </el-row>
+            </el-col>
+          </el-row>
+        </template>
       </el-table-column>
+      <!-- :index="getIndex"  通过给index属性绑定函数，可以完成自定义序列号 -->
+      <el-table-column type="index"></el-table-column>
       <el-table-column prop="roleName" label="角色名称" width="180"></el-table-column>
       <el-table-column prop="roleDesc" label="描述" width="180"></el-table-column>
-      <el-table-column prop="address" label="操作"></el-table-column>
+      <el-table-column label="操作">
+        <template v-slot="{row}">
+          <el-button type="primary" plain icon="el-icon-edit" size="mini"></el-button>
+          <el-button type="danger" plain icon="el-icon-delete" size="mini"></el-button>
+          <el-button
+            type="success"
+            plain
+            icon="el-icon-check"
+            size="mini"
+            @click="showRightDialog(row)"
+          >分配权限</el-button>
+        </template>
+      </el-table-column>
     </el-table>
+
+    <!-- 权限分配树 -->
+    <el-dialog title="角色授权" :visible.sync="isRightDialogShow" width="30%">
+      <!-- data 是用来绑定数据的
+            show-checkbox是用来设置是否要展示 checkbox
+            node-key 指的是当前节点的唯一表示
+            default-expanded-keys 这是一个数组，表示默认让哪些节点展开
+            default-checked-keys 这是一个数据，表示默认选中哪些节点
+      props:  children是用来指定子级树的数据属性名，label以及节点要展示到文字的属性名-->
+      <!-- default-expand-all  是否默认展开所有节点-->
+      <el-tree
+        :data="rightList"
+        show-checkbox
+        node-key="id"
+        :default-checked-keys="checkedRights"
+        :props="defaultProps"
+        :default-expand-all="true"
+      ></el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="isRightDialogShow = false">取 消</el-button>
+        <el-button type="primary" @click="updateRoleRight">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
 export default {
   data() {
     return {
-      roleList: [
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1519 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
-      ]
+      roleList: [],
+      isRightDialogShow: false,
+      rightList: [],
+      // 这个是用来设置 tree组件的 数据展示 子节点以及 展示的文字的
+      defaultProps: {
+        //子级元素的属性名
+        children: "children",
+        // 当前节点展示的文字的属性名
+        label: "authName"
+      },
+      checkedRights: [],
+      // 用来存储要编辑的role的id
+      currentEditRoleId: -1
     };
+  },
+  methods: {
+    // 页面渲染
+    async getRolesList() {
+      let res = await this.$http({
+        url: "roles"
+      });
+      // console.log(res);
+      this.roleList = res.data.data;
+    },
+    // 权限模态框
+    async showRightDialog(row) {
+      this.currentEditRoleId = row.id;
+      // 1. 打开模态框
+      this.isRightDialogShow = true;
+      // 2. 获取所有的权限信息（树结构）
+      let res = await this.$http({
+        url: "rights/tree"
+      });
+      // 3. 把权限列表绑定给了tree组件
+      this.rightList = res.data.data;
+
+      let level3Ids = [];
+      console.log(row);
+      // row.children.foreach(level1 => {
+      //   level1.children.foreach(level2 => {
+      //     level2.children.foreach(level3 => {
+      //       level3Ids.push(level3.id);
+      //     });
+      //   });
+      // });
+
+      this.checkedRights = [...level3Ids];
+    },
+    async updateRoleRight() {}
+  },
+  created() {
+    this.getRolesList();
   }
 };
 </script>
+<style>
+.level1 {
+  border-bottom: 1px dashed #ccc;
+  padding: 10px 0;
+}
+.level1:last-child {
+  border-bottom: none;
+}
+.level2 {
+  margin-bottom: 15px;
+}
+
+.level3 {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+</style>
+
