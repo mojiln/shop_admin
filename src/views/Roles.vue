@@ -74,6 +74,7 @@
         :default-checked-keys="checkedRights"
         :props="defaultProps"
         :default-expand-all="true"
+        ref="rightTree"
       ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="isRightDialogShow = false">取 消</el-button>
@@ -123,18 +124,46 @@ export default {
       this.rightList = res.data.data;
 
       let level3Ids = [];
-      console.log(row);
-      // row.children.foreach(level1 => {
-      //   level1.children.foreach(level2 => {
-      //     level2.children.foreach(level3 => {
-      //       level3Ids.push(level3.id);
-      //     });
-      //   });
-      // });
+      // console.log(row);
+      row.children.forEach(level1 => {
+        level1.children.forEach(level2 => {
+          level2.children.forEach(level3 => {
+            level3Ids.push(level3.id);
+          });
+        });
+      });
 
       this.checkedRights = [...level3Ids];
     },
-    async updateRoleRight() {}
+    async updateRoleRight() {
+      // 1. 获取tree组件中，所有被勾选的节点的id
+      let ids = [
+        ...this.$refs.rightTree.getCheckedKeys(),
+        ...this.$refs.rightTree.getHalfCheckedKeys()
+      ].join(",");
+      // console.log(ids);
+      // 2. 将id拼接成字符串之后，发送ajax请求，修改角色权限
+      let res = await this.$http({
+        url: `roles/${this.currentEditRoleId}/rights`,
+        method: "post",
+        data: {
+          rids: ids
+        }
+      });
+
+      // 3. 提示用户更新成功
+      this.$message({
+        type: "success",
+        message: res.data.meta.msg,
+        duration: 1000
+      });
+
+      // 4. 更新成功之后，重新获取列表数据
+      this.getRolesList();
+
+      // 5.关掉模态框
+      this.isRightDialogShow = false;
+    }
   },
   created() {
     this.getRolesList();

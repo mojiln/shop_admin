@@ -2,9 +2,12 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from './views/Login.vue'
 import Home from './views/Home.vue'
-import User from './views/User.vue'
+import User from './views/Users.vue'
 import Roles from './views/Roles.vue'
-import Right from './views/Right.vue'
+import Right from './views/Rights.vue'
+import Goods from './views/Goods.vue'
+import Categories from './views/Categories.vue'
+import GoodsAdd from './views/GoodsAdd.vue'
 
 Vue.use(Router)
 
@@ -17,16 +20,32 @@ const router = new Router({
     {
       path: "/home",
       component: Home,
-      children: [{
-        path: "/user",
-        component: User
-      }, {
-        path: "/roles",
-        component: Roles
-      }, {
-        path: "/right",
-        component: Right
-      }]
+      children: [
+        {
+          path: "/users",
+          component: User
+        },
+        {
+          path: "/roles",
+          component: Roles
+        },
+        {
+          path: "/rights",
+          component: Right
+        },
+        {
+          path: "/goods",
+          component: Goods
+        },
+        {
+          path: "/categories",
+          component: Categories
+        },
+        {
+          path: "/goodsAdd",
+          component: GoodsAdd
+        }
+      ]
     },
     {
       path: "/",
