@@ -117,13 +117,13 @@ export default {
       this.activeName = activeName;
     },
     changeTab(tab) {
-      console.log(tab);
+      // console.log(tab);
       this.activeStep = +tab.index;
     },
     onFileUploadSuccess(res) {
       // console.log(res);
       this.goodForm.pics.push({
-        pics: res.data.tmp_path
+        pic: res.data.tmp_path
       });
     },
     async addGoods() {
@@ -133,7 +133,7 @@ export default {
         goods_price: this.goodForm.goods_price,
         goods_number: this.goodForm.goods_number,
         goods_weight: this.goodForm.goods_weight,
-        goods_cat: this.goodForm.catArr.pop(),
+        goods_cat: this.goodForm.catArr.join(),
         goods_introduce: this.goodForm.goods_introduce,
         pics: this.goodForm.pics,
         is_promote: this.goodForm.is_promote
@@ -143,8 +143,8 @@ export default {
         method: "post",
         data: newGoods
       });
-      console.log(res);
-      if (res.data.meta.status == 200) {
+      // console.log(res);
+      if (res.data.meta.status === 201) {
         this.$router.push("/goods");
       }
     }
